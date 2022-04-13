@@ -1,0 +1,96 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/Magazine/Details/{magazineId:int}"
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+@using Microsoft.Extensions.Logging
+@inject IManager _mgr
+@inject NavigationManager _navManager
+@inject ILogger<MagazineDetails> _logger
+@inject IJSRuntime _js
+
+
+<PageTitle>Manga Details</PageTitle>
+
+<h2>Magazine Details</h2>
+
+
+@if (Magazine == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <EditForm EditContext="_editContext" OnValidSubmit="@UpdateMagazine">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="input-group">
+            <label class="input-label">Name</label>
+            <InputText class="input-group-text" @bind-Value="Magazine.Name"></InputText>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Schedule</label>
+            <InputSelect class="input-group-text" @bind-Value="Magazine.Schedule">
+                @foreach (var schedule in Enum.GetValues(typeof(Schedule)))
+                {
+                    <option value="@schedule">@schedule</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button class="btn btn-primary btn-submit" type="submit">Update Magazine</button>
+    </EditForm>
+}
+
+
+@code {
+
+    [Parameter]
+    public int MagazineId { get; set; }
+
+    private Magazine? Magazine { get; set; }
+    private EditContext? _editContext;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _logger.LogInformation("requesting Magazine from db");
+        Magazine = _mgr.GetMagazine(MagazineId);
+        // Magazine = _mgr.GetMagazine(30);  UNCOMMENT TO TEST CATCH STATEMENT
+
+        try
+        {
+            _editContext = new EditContext(Magazine!);
+            _logger.LogInformation("Magazine request successful");
+        }
+        catch (ArgumentNullException)
+        {
+            _logger.LogError("Magazine request FAILED");
+            if (await _js.InvokeAsync<bool>("alertError", "Oops...", "Something went wrong!"))
+            {
+                _navManager.NavigateTo("/Magazine");
+            }
+        }
+    }
+
+    private void UpdateMagazine()
+    {
+        _logger.LogInformation("Started updating magazine");
+        if (Magazine != null)
+        {
+            _mgr.ChangeMagazine(Magazine.Id, Magazine.Name, Magazine.Schedule);
+            _navManager.NavigateTo("/Magazine");
+            _logger.LogInformation("Magazine update successful");
+        }
+        else
+        {
+            _logger.LogWarning("Failed to update magazine");
+        }
+    }
+
+
+
+}

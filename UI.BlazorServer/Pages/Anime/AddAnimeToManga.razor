@@ -1,0 +1,85 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using Microsoft.AspNetCore.Components
+@using MangaProject.BL.Domain
+@using MangaProject.BL
+@inject ILogger<AddAnimeToManga> _logger
+@inject IJSRuntime _js
+
+@if (Manager == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="_mangaId" OnSubmit="@AddAnime">
+        <div class="input-group">
+            <InputSelect class="input-group-text" @bind-Value="_mangaId">
+                @foreach (Manga manga in Manager.GetMangasWithoutAnime())
+                {
+                    <option value="@manga.Id">@manga.Title</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button class="btn btn-primary btn-submit" type="submit">Link with manga</button>
+        @if (Manager.GetAnime(AnimeId).Manga != null)
+        {
+            <RemoveButton RemoveCallback="@(async () => await ConfirmRemoveAnimeManga())"/>
+        }
+    </EditForm>
+    
+    
+}
+
+
+@code {
+
+    [CascadingParameter]
+    public IManager? Manager { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public int AnimeId { get; set; }
+
+    [Parameter]
+    public AnimeListItem? Parent { get; set; }
+
+    private int _mangaId;
+
+    protected override void OnParametersSet()
+    {
+        if (Manager == null)
+            throw new NullReferenceException("Manager cannot be null");
+
+        _mangaId = 0;
+    }
+
+
+    private void AddAnime()
+    {
+        try
+        {
+            _logger.LogInformation("Started adding anime to manga");
+            Manager!.AddAnimeToManga(_mangaId, AnimeId);
+            _logger.LogInformation("Added anime to manga");
+            Parent!.RefreshState();
+        }
+        catch (Exception)
+        {
+            _logger.LogWarning("Something went wrong adding the anime to the manga");
+        }
+    }
+
+    private async Task ConfirmRemoveAnimeManga()
+    {
+
+        if (await _js.InvokeAsync<bool>("confirmRemove", $"Are you sure?",
+            "This will delete the relation between the anime and manga."))
+        {
+            Manager!.ChangeAnime(AnimeId, mangaId: null);
+            Parent?.RefreshState();
+        }
+    }
+
+}

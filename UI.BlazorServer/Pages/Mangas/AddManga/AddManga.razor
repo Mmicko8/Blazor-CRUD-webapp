@@ -1,0 +1,126 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/Manga/Add"
+@using MangaProject.BL.Domain
+@using MangaProject.BL
+@using Microsoft.Extensions.Logging
+@inject IManager _mgr
+@inject NavigationManager _navManager
+@inject ILogger<AddManga> _logger
+
+<PageTitle>Create Manga</PageTitle>
+<h2>Create Manga</h2>
+
+@if (Manga == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <EditForm EditContext="_editContext" OnValidSubmit="@CreateManga">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="input-group">
+            <label class="input-label">Title</label>
+            <InputText class="input-group-text" @bind-Value="Manga.Title"></InputText>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">StartDate</label>
+            <InputDate class="input-group-text" @bind-Value="Manga.StartDate"/>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Volumes</label>
+            <InputNumber class="input-group-text" @bind-Value="Manga.Volumes"/>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Rating</label>
+            <InputNumber class="input-group-text" @bind-Value="Manga.Rating"/>
+        </div>
+
+        
+        <h3>Protagonist</h3>
+
+        <div class="input-group">
+            <label class="input-label">Name</label>
+            <InputText class="input-group-text" @bind-Value="Manga.Protagonist.Name"/>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Age</label>
+            <InputNumber class="input-group-text" @bind-Value="Manga.Protagonist.Age"/>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Gender</label>
+            <InputRadioGroup class="input-group-text" @bind-Value="Manga.Protagonist.Gender">
+                @foreach (var gender in Enum.GetValues(typeof(Gender)))
+                {
+                    <InputRadio class="input-radio" Value="@gender"/>
+                    <span class="input-radio-text">@gender</span>
+                }
+            </InputRadioGroup>
+        </div>
+
+        
+        <h3>Link to magazine</h3>
+
+        <div class="input-group">
+            <label class="input-label">Magazine</label>
+            <InputSelect class="input-group-text" @bind-Value="Manga.Magazine.Id" @oninput="@((args) => SetMagazine((string?) args.Value))">
+                @foreach (var magazine in _mgr.GetAllMagazines())
+                {
+                    <option value="@magazine.Id">@magazine.Name</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button class="btn btn-primary btn-submit" type="submit">Submit</button>
+    </EditForm>
+}
+
+
+@code {
+    private Manga? Manga { get; set; } = new Manga();
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        if (Manga == null) return; // TODO do error handling
+        Manga.Protagonist = new Protagonist();
+        Manga.Magazine = new Magazine();
+        Manga.StartDate = new DateTime(2000, 1, 1); // makes this the default value instead of 1/1/1 which is cumbersome to use because most manga start between 1970 and now
+        _editContext = new EditContext(Manga);
+        base.OnInitialized();
+    }
+
+    private void CreateManga()
+    {
+        _logger.LogInformation("Started creating manga");
+        if (Manga != null)
+        {
+            if (Manga.Magazine.Id == 0) // can maybe change to not allowing new mangas without linking a magazine?
+                Manga.Magazine = null; // so adding manga doesn't create a link with non-existing magazine
+            Manga = _mgr.AddManga(Manga.Title, Manga.StartDate, Manga.Volumes, Manga.Protagonist, Manga.Rating, magazine: Manga.Magazine);
+            _navManager.NavigateTo($"/Manga/Details/{Manga.Id}");
+            _logger.LogInformation("Added manga successfully");
+        }
+        else
+        {
+            _logger.LogWarning("Failed adding manga");
+        }
+    }
+
+    private void SetMagazine(string? magazineIdString)
+    {
+        if (magazineIdString == null)
+            Manga!.Magazine = null;
+        Manga!.Magazine = int.TryParse(magazineIdString, out int id) ? _mgr.GetMagazine(id) : null;
+    }
+
+}

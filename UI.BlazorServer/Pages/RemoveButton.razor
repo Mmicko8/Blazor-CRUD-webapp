@@ -1,0 +1,6 @@
+<button class="btn btn-primary btn-dangerous" @onclick="RemoveCallback">X</button>
+
+@code {
+    [Parameter]
+    public EventCallback<MouseEventArgs> RemoveCallback { get; set; }
+}

@@ -1,0 +1,54 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using MangaProject.BL.Domain
+@using MangaProject.BL
+
+@if (Protagonist == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <div id="protagonist-details-table">
+        <h4>Protagonist</h4>
+
+        <table class="table-horizontal">
+            <tr>
+                <th>Name</th>
+                <td>@Protagonist.Name</td>
+            </tr>
+            <tr>
+                <th>Age</th>
+                <td>@Protagonist.Age</td>
+            </tr>
+            <tr>
+                <th>Gender</th>
+                <td>@Protagonist.Gender</td>
+            </tr>
+        </table>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public IManager? Manager { get; set; }
+
+    [Parameter]
+    public int MangaId { get; set; }
+
+    public Protagonist? Protagonist { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Manager == null)
+        {
+            // ReSharper disable once NotResolvedInText
+            throw new ArgumentNullException("Manager");
+        }
+        Protagonist = Manager.GetProtagonistOfManga(MangaId);
+    }
+
+}

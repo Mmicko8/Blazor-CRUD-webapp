@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>MangaProject.BL.Domain</RootNamespace>
+        <AssemblyName>MangaProject.BL.Domain</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.10" />
+    </ItemGroup>
+    
+</Project>

@@ -1,0 +1,52 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using MangaProject.BL.Domain
+@inject NavigationManager _navManager
+
+@if (MangaAuthors == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <h3>Authors</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Birth Year</th>
+            <th>Gender</th>
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (MangaAuthor mangaAuthor in MangaAuthors)
+        {
+            <tr>
+                <td>@mangaAuthor.Author.Name</td>
+                <td>@mangaAuthor.Author.Birthday.Year</td>
+                <td>@mangaAuthor.Author.Gender</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="() => AuthorDetails(mangaAuthor.Author.Id)">Details</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+
+@code {
+
+    [Parameter]
+    public IEnumerable<MangaAuthor>? MangaAuthors { get; set; }
+
+    protected void AuthorDetails(int id)
+    {
+        _navManager.NavigateTo("Author/Details/" + id);
+    }
+
+}

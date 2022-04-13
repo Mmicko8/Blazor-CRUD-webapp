@@ -1,0 +1,65 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/Magazine/Create"
+@using MangaProject.BL.Domain
+@using Microsoft.AspNetCore.Components
+@using MangaProject.BL
+@inject ILogger<AddMagazine> _logger
+@inject IManager _mgr
+@inject NavigationManager _navManager
+
+
+<PageTitle>Create Magazine</PageTitle>
+<h2>Create Magazine</h2>
+
+
+<EditForm EditContext="_editContext" OnValidSubmit="@CreateMagazine">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="input-group">
+        <label class="input-label">Name</label>
+        <InputText class="input-group-text" @bind-Value="Magazine.Name"></InputText>
+    </div>
+
+    <div class="input-group">
+        <label class="input-label">Schedule</label>
+        <InputSelect class="input-group-text" @bind-Value="Magazine.Schedule">
+            @foreach (var schedule in Enum.GetValues(typeof(Schedule)))
+            {
+                <option value="@schedule">@schedule</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button class="btn btn-primary btn-submit" type="submit">Create Magazine</button>
+</EditForm>
+
+
+@code {
+    private Magazine Magazine { get; set; } = new Magazine();
+    private EditContext? _editContext;
+
+    protected override void OnInitialized()
+    {
+        Magazine.Mangas = new List<Manga>();
+        _editContext = new EditContext(Magazine);
+        base.OnInitialized();
+    }
+
+    private void CreateMagazine()
+    {
+        _logger.LogInformation("Started creating magazine");
+        try
+        {
+            Magazine = _mgr.AddMagazine(Magazine.Name, Magazine.Schedule);
+        }
+        catch
+        {
+            _logger.LogError("Error creating new magazine"); // TODO let user know
+        }
+        _navManager.NavigateTo($"/Magazine/Details/{Magazine.Id}");
+        _logger.LogInformation("Added magazine successfully");
+
+    }
+}

@@ -1,0 +1,88 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+@inject ILogger<AddMangaToAuthor> _logger
+
+<h3>Add Manga</h3>
+
+@if (Manager == null || _mangaAuthor == null)
+{
+    <p>Loading ...</p>
+}
+else
+{
+    <EditForm EditContext="_editContext" OnSubmit="@AddManga">
+        <div class="input-group">
+            <label class="input-label">Manga</label>
+            <InputSelect class="input-group-text" @bind-Value="_mangaAuthor.Manga.Id">
+                @foreach (Manga manga in Manager.GetAllMangasExceptOfAuthor(AuthorId))
+                {
+                    <option value="@manga.Id">@manga.Title</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Contribution type</label>
+            <InputSelect class="input-group-text" @bind-Value="_mangaAuthor.ContributionType">
+                @foreach (var contributiontype in Enum.GetValues(typeof(ContributionType)))
+                {
+                    <option value="@contributiontype">@contributiontype</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button class="btn btn-primary btn-submit" type="submit">Add manga to author</button>
+    </EditForm>
+}
+
+
+@code {
+
+    [CascadingParameter]
+    public IManager? Manager { get; set; }
+    
+    // this is to show how global exception would work, however we only use it for this component.
+    [CascadingParameter]
+    public ErrorHandler? ErrorHandler { get; set; }
+
+    [Parameter]
+    public int AuthorId { get; set; }
+
+    // allows this component to refresh the parent page after adding the manga to author so that the user can notice the change
+    [Parameter]
+    public AuthorDetails? Parent { get; set; }
+
+    private MangaAuthor? _mangaAuthor;
+    private EditContext? _editContext;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _mangaAuthor = new MangaAuthor();
+        _mangaAuthor.Manga = new Manga();
+        _editContext = new EditContext(_mangaAuthor);
+    }
+
+
+    private void AddManga()
+    {
+        try
+        {
+             // throw new Exception("Testing the error handling"); // UNCOMMENT TO TEST ERROR HANDLING
+            _logger.LogInformation("Started adding manga to author");
+            if (Manager == null)
+                throw new NullReferenceException("Given Manager is null.");
+            if (_mangaAuthor == null)
+                throw new NullReferenceException("_mangaAuthorForm is null.");
+            
+            Manager.AddMangaAuthor(_mangaAuthor.Manga.Id, AuthorId, _mangaAuthor.ContributionType);
+            _logger.LogInformation("Added manga to author");
+            Parent?.RefreshState();
+        }
+        catch (Exception e)
+        {
+            ErrorHandler?.ProcessError(e, "ERROR: Something went wrong adding the manga to the author.");
+        }
+    }
+}

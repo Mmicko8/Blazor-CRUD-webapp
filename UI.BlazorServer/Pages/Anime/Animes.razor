@@ -1,0 +1,29 @@
+﻿@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/Anime"
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+@inject IManager _mgr
+
+<PageTitle>Anime</PageTitle>
+<h2>Animes</h2>
+
+<ErrorBoundary>
+    <CascadingValue Value="_mgr">
+        <div class="anime-list" tabindex="-1">
+            <Virtualize Items="_animes" TItem="Anime">
+                <AnimeListItem AnimeId="context.Id"/>
+            </Virtualize>
+        </div>
+    </CascadingValue>
+</ErrorBoundary>
+
+@code {
+    private ICollection<Anime>? _animes;
+
+    protected override void OnInitialized()
+    {
+        _animes = _mgr.GetAllAnime().ToList();
+    }
+
+}

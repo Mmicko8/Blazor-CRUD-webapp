@@ -1,0 +1,21 @@
+@using Microsoft.Extensions.Logging
+@inject ILogger<ErrorHandler> _logger
+@inject IJSRuntime _js
+
+@* We have chosen to use this only for AuthorDetails just to showcase how it works. *@
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public async Task ProcessError(Exception ex, string userMessage = "ERROR: something went wrong.")
+    {
+        _logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}", 
+            ex.GetType(), ex.Message);
+        await _js.InvokeVoidAsync("alert", userMessage);
+    }
+}

@@ -1,0 +1,44 @@
+﻿ @* ReSharper disable once CheckNamespace *@
+ @namespace UI.BlazorServer.Pages
+@page "/Manga/Details/{mangaId:int}"
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+@inject IManager _mgr
+
+<PageTitle>Manga Details</PageTitle>
+
+<h2>Manga Details</h2>
+
+@if (Manga == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <ErrorBoundary>
+        <MangaInfo Manga="Manga"/>
+    </ErrorBoundary>
+
+    <ErrorBoundary>
+        <ProtagonistDetails MangaId="Manga.Id" Manager="_mgr"/>
+    </ErrorBoundary>
+
+    <ErrorBoundary>
+        <AuthorsOfManga MangaAuthors="Manga.Authors"/>
+    </ErrorBoundary>
+}
+
+@code {
+    [Parameter]
+    public int MangaId { get; set; }
+
+    private Manga? Manga { get; set; }
+
+    protected override void OnParametersSet(){
+
+        Manga = _mgr.GetMangaWithAuthors(MangaId);
+    }
+
+}

@@ -1,0 +1,38 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/"
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+@inject IManager _mgr
+@inject IJSRuntime _js
+
+<PageTitle>Mangas</PageTitle>
+
+<h2>All Manga</h2>
+<CascadingValue Value="_mgr">
+    <ErrorBoundary>
+        <MangasTable Mangas="_mgr.GetAllMangas()" RemoveMethod="async (manga) => await ConfirmRemoveManga(manga)"/> 
+    </ErrorBoundary>
+</CascadingValue>
+
+@code {
+    [CascadingParameter]
+    public ErrorHandler? ErrorHandler { get; set; }
+    
+    private async Task ConfirmRemoveManga(Manga manga)
+    {
+        try
+        {
+            if (await _js.InvokeAsync<bool>("confirmRemove", $"Are you sure you want to remove {manga.Title}?",
+                "The manga will be deleted PERMANENTLY."))
+            {
+                _mgr.RemoveManga(manga.Id);
+                StateHasChanged();
+            }
+        }
+        catch(JSException e)
+        {
+            await ErrorHandler!.ProcessError(e, "Something went wrong removing the manga");
+        }
+    }
+}

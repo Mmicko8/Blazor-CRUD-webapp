@@ -1,0 +1,97 @@
+@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using MangaProject.BL.Domain
+@using MangaProject.BL
+@using System.Diagnostics
+@inject NavigationManager _navManager
+
+@if (Mangas != null)
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Since</th>
+            <th>Protagonist</th>
+            <th>Volumes</th>
+            <th>Rating</th>
+            @if (AuthorId != null)
+            {
+                <th>Contribution</th>
+            }
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var manga in Mangas)
+        {
+            <tr>
+                <td>@manga.Title</td>
+                <td>@manga.StartDate.Year</td>
+                <td>@manga.Protagonist.Name</td>
+                <td>@manga.Volumes</td>
+                @if (@manga.Rating == null)
+                {
+                    <td>Unrated</td>
+                }
+                else
+                {
+                    <td>@manga.Rating</td>
+                }
+                @if (AuthorId != null)
+                {
+                    <td>@GetContributionOfManga(manga.Id)</td>
+                }
+                <td>
+                    <button class="btn btn-primary" @onclick="() => MangaDetails(manga.Id)">Details</button>
+                    <RemoveButton RemoveCallback="@(async () => await MangaConfirmRemove(manga))"/>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [CascadingParameter]
+    public IManager? Manager { get; set; }
+    [Parameter]
+    public IEnumerable<Manga>? Mangas { get; set; }
+    [Parameter]
+    public Func<Manga, Task>? RemoveMethod { get; set; }
+    
+    // Only used for mangasTable in AuthorDetails because then It shows the authorContribution of the current Author
+    //      but since a manga can have multiple authors the column showing the contribution is normally hidden
+    [Parameter]
+    public int? AuthorId { get; set; }
+
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (Manager == null)
+            throw new NullReferenceException("Manager parameter cannot be null");
+        if (RemoveMethod == null)
+            throw new NullReferenceException("RemoveMethod parameter cannot be null");
+    }
+    
+    
+    private void MangaDetails(int id)
+    {
+        _navManager.NavigateTo("/Manga/Details/"+id);
+    }
+
+    private async Task MangaConfirmRemove(Manga manga)
+    {
+        await RemoveMethod!.Invoke(manga);
+    }
+
+    private string GetContributionOfManga(int mangaId)
+    {
+        if (AuthorId == null)
+            throw new NullReferenceException();
+        return Manager!.GetContributionType(mangaId, (int) AuthorId).ToString();
+    }
+}

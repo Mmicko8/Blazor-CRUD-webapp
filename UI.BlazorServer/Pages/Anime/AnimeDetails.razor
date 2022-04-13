@@ -1,0 +1,46 @@
+ @* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+
+@if (Anime != null)
+{
+    <div class="anime-details">
+        <div class="anime-details-row">
+            <div class="label">Title</div>
+            <span>@Anime.Title</span>
+        </div>
+        <div class="anime-details-row">
+            <div class="label">Episodes</div>
+            <span>@Anime.Episodes</span>
+        </div>
+        <div class="anime-details-row">
+            <div class="label">Rating</div>
+            @if (Anime.Rating == null)
+            {
+                <span>Unrated</span>
+            }
+            else
+            {
+                <span>@Anime.Rating</span>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter]
+    public IManager? Manager { get; set; }
+    
+    [Parameter, EditorRequired]
+    public int AnimeId { get; set; }
+    
+    private Anime? Anime { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Manager == null)
+            throw new NullReferenceException("Manager cannot be null");
+        Anime = Manager.GetAnime(AnimeId);
+    }
+}

@@ -1,0 +1,102 @@
+﻿@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/Author/Details/{authorIdString}"
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+@inject IManager _mgr
+@using Microsoft.Extensions.Logging
+@inject ILogger<AuthorDetails> _logger
+@inject IJSRuntime _js
+@inject NavigationManager _navManager
+
+<PageTitle>Author Details</PageTitle>
+
+<h2>Author Details</h2>
+@if (Author == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table-horizontal">
+        <tr>
+            <th>Name</th>
+            <td>@Author.Name</td>
+
+        </tr>
+        <tr>
+            <th>Birth Year</th>
+            <td>@Author.Birthday.Year</td>
+
+        </tr>
+        <tr>
+            <th>Gender</th>
+            <td>@Author.Gender</td>
+        </tr>
+    </table>
+
+    <h3>Mangas</h3>
+    <CascadingValue Value="_mgr">
+        <ErrorBoundary>
+            <ChildContent>
+                <MangasTable Mangas="_mgr.GetMangasOfAuthor(Author.Id)" AuthorId="@Author.Id" 
+                             RemoveMethod="async (manga) => await ConfirmRemoveMangaAuthor(manga)"/>
+            </ChildContent>
+            <ErrorContent>
+                <p class="errorUI">Unable to show Mangas. Sorry!</p>
+            </ErrorContent>
+        </ErrorBoundary>
+
+        <AddMangaToAuthor AuthorId="Author.Id" Parent="this"/>
+    </CascadingValue>
+}
+
+@code {
+
+    [Parameter]
+    public string? AuthorIdString { get; set; }
+
+    private Author? Author { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            Author = _mgr.GetAuthor(int.Parse(AuthorIdString!));
+        }
+        catch (Exception e)
+        {
+            if (e is ArgumentNullException)
+                _logger.LogError("AuthorId cannot be null");
+            else if (e is FormatException)
+                _logger.LogError("AuthorId cannot be parsed");
+            else
+            {
+                _logger.LogError("could not get author");
+            }
+
+            if (await _js.InvokeAsync<bool>("alertError", "Oops...", "Something went wrong!"))
+            {
+                _navManager.NavigateTo("/");
+            }
+        }
+    }
+
+    public void RefreshState()
+    {
+        StateHasChanged();
+    }
+
+    private async Task ConfirmRemoveMangaAuthor(Manga manga)
+    {
+        if (await _js.InvokeAsync<bool>("confirmRemove", "Are you sure you want to remove this relation?",
+            $"{Author!.Name} will no longer be the author of {manga.Title}."))
+        {
+            _mgr.RemoveMangaAuthor(manga.Id, Author.Id);
+            StateHasChanged();
+        }
+    }
+
+}

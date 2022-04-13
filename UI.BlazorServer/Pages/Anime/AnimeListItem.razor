@@ -1,0 +1,59 @@
+﻿@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@using MangaProject.BL
+@using MangaProject.BL.Domain
+
+<div class="anime-list-item">
+    <ErrorBoundary>
+        <AnimeDetails AnimeId="AnimeId"/>
+    </ErrorBoundary>
+    <ErrorBoundary>
+        <AddAnimeToManga AnimeId="AnimeId" Parent="this"/>
+    </ErrorBoundary>
+    @if (_manga != null)
+    {
+        <div class="anime-manga">
+            <h3>Manga</h3>
+            <ErrorBoundary>
+                <MangaInfo Manga="_manga"/>
+            </ErrorBoundary>
+        </div>
+    }
+</div>
+
+
+@code {
+
+    [CascadingParameter]
+    public IManager? Manager { get; set; }
+
+    [Parameter]
+    public int AnimeId { get; set; }
+
+    private Manga? _manga;
+
+    protected override void OnParametersSet()
+    {
+        if (Manager == null)
+            throw new NullReferenceException("Manager cannot be null");
+        var anime = Manager.GetAnime(AnimeId);
+        if (anime == null)
+            throw new NullReferenceException("anime cannot be null");
+        try
+        {
+            var mangaId = anime.Manga.Id;
+            _manga = Manager.GetManga(mangaId);
+        }
+        catch (Exception)
+        {
+            _manga = null;
+        }
+    }
+
+    public void RefreshState()
+    {
+        OnParametersSet();
+        StateHasChanged();
+    }
+
+}

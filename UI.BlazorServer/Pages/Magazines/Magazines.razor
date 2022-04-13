@@ -1,0 +1,80 @@
+﻿@* ReSharper disable once CheckNamespace *@
+@namespace UI.BlazorServer.Pages
+@page "/Magazine"
+@using MangaProject.BL.Domain
+@using MangaProject.BL
+@inject NavigationManager _navManager
+@inject IManager _mgr
+@inject IJSRuntime _js
+
+<PageTitle>Magazines</PageTitle>
+
+
+<h2>All Magazines</h2>
+@if (_magazines == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table id="magazines" class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Schedule</th>
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (Magazine magazine in _magazines)
+        {
+            <tr>
+                <td>@magazine.Name</td>
+                <td>@magazine.Schedule</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="() => MagazineDetails(magazine.Id)">Details</button>
+                    <RemoveButton RemoveCallback="@(() => ConfirmRemoveMagazine(magazine))"/> @*TODO ask if needs async await *@
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <p>
+        <button class="btn btn-primary" onclick="@Refresh">Refresh magazines list</button>
+    </p>
+}
+
+@code {
+    private IEnumerable<Magazine>? _magazines;
+
+    protected override void OnInitialized()
+    {
+        _magazines = _mgr.GetAllMagazines();
+    }
+
+    private void MagazineDetails(int id)
+    {
+        _navManager.NavigateTo($"/Magazine/Details/{id}");
+    }
+
+    private async Task ConfirmRemoveMagazine(Magazine magazine)
+    {
+
+        if (await _js.InvokeAsync<bool>("confirmRemove", $"Are you sure you want to remove {magazine.Name}?",
+            "This will delete the magazine and ALL associated mangas."))
+        {
+            _mgr.RemoveMagazine(magazine.Id);
+            StateHasChanged();
+        }
+    }
+
+    private async Task Refresh()
+    {
+        StateHasChanged();
+        await _js.InvokeVoidAsync("alertRefreshed", "Refresh successful!");
+    }
+
+}
