@@ -1,0 +1,67 @@
+@page "/Author"
+@using MangaProject.BL.Domain
+@using MangaProject.BL
+@inject IManager _mgr
+@inject NavigationManager _navMgr
+@inject IJSRuntime _js
+
+
+<h2>Authors</h2>
+
+@if (_authors == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Birth year</th>
+            <th>gender</th>
+            <th></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        @foreach (var author in _authors)
+        {
+            <tr>
+                <td>@author.Name</td>
+                <td>@author.Birthday.Year</td>
+                <td>@author.Gender</td>
+                <td>
+                    <button class="btn btn-primary"
+                            @onclick="@(() => _navMgr.NavigateTo($"/Author/Details/{author.Id}"))">
+                        Details
+                    </button>
+                    <RemoveButton RemoveCallback="@(() => ConfirmRemoveAuthor(author))"/>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Author>? _authors;
+
+    protected override void OnInitialized()
+    {
+        _authors = _mgr.GetAllAuthors();
+    }
+
+    private async Task ConfirmRemoveAuthor(Author author)
+    {
+        if (await _js.InvokeAsync<bool>("confirmRemove", $"Are you sure you want to remove {author.Name}?",
+            "The author will be deleted PERMANENTLY."))
+        {
+            _mgr.RemoveAuthor(author.Id);
+            StateHasChanged();
+        }
+    }
+
+}

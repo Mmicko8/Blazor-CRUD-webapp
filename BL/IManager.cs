@@ -15,27 +15,30 @@ namespace MangaProject.BL {
         IEnumerable<Manga> GetMangasWithoutAnime();
         Manga AddManga(string title, DateTime startDate, int volumes, Protagonist protagonist, double? rating,
             ICollection<MangaAuthor> authors = null, Magazine magazine = null, Anime anime = null, int id = 0);
-
         void RemoveManga(int id);
+        Protagonist GetProtagonistOfManga(int mangaid);
+        
         Author GetAuthor(int id);
         IEnumerable<Author> GetAllAuthors();
         IEnumerable<Author> GetAllAuthorsWithBooks();
         IEnumerable<Author> GetAuthorsByGender(Gender gender);
-
         Author AddAuthor(string name, DateTime birthday, Gender gender, ICollection<MangaAuthor> mangas = null,
             int id = 0);
+        void RemoveAuthor(int id);
+        
 
         Magazine GetMagazine(int id);
         IEnumerable<Magazine> GetAllMagazines();
         Magazine AddMagazine(string name, Schedule schedule, ICollection<Manga> mangas = null, int id = 0);
         Magazine ChangeMagazine(int id, string newName, Schedule newSchedule);
         void RemoveMagazine(int magazineId);
+        
+        
         MangaAuthor AddMangaAuthor(int mangaId, int authorId, ContributionType contributionType);
         void RemoveMangaAuthor(int mangaId, int authorId);
         ContributionType GetContributionType(int mangaId, int authorId);
-        Protagonist GetProtagonistOfManga(int mangaid);
-
-        //extra entity for virtualization
+        
+        
         Anime GetAnime(int id);
         IEnumerable<Anime> GetAllAnime();
         Anime AddAnime(string title, int episodes, double? rating, int id = 0);

@@ -16,7 +16,7 @@
 </CascadingValue>
 
 @code {
-    [CascadingParameter]
+    [CascadingParameter, EditorRequired]
     public ErrorHandler? ErrorHandler { get; set; }
     
     private async Task ConfirmRemoveManga(Manga manga)

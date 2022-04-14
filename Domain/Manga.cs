@@ -6,9 +6,7 @@ namespace MangaProject.BL.Domain
 {
     public class Manga : IValidatableObject
     {
-        public Manga()
-        {
-        }
+        public Manga() {}
 
         public Manga(string title, DateTime startDate, int volumes, double? rating = null, int id = 0)
         {

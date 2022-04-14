@@ -41,12 +41,11 @@ else
 
 @code {
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public IEnumerable<MangaAuthor>? MangaAuthors { get; set; }
 
-    protected void AuthorDetails(int id)
+    private void AuthorDetails(int id)
     {
         _navManager.NavigateTo("Author/Details/" + id);
     }
-
 }

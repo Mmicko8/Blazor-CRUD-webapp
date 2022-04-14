@@ -54,15 +54,16 @@
 }
 
 @code {
-    [CascadingParameter]
+    // TODO make all EditorRequired parameters non nullable
+    [CascadingParameter, EditorRequired]
     public IManager? Manager { get; set; }
-    [Parameter]
+    [Parameter, EditorRequired]
     public IEnumerable<Manga>? Mangas { get; set; }
-    [Parameter]
+    [Parameter, EditorRequired]
     public Func<Manga, Task>? RemoveMethod { get; set; }
     
     // Only used for mangasTable in AuthorDetails because then It shows the authorContribution of the current Author
-    //      but since a manga can have multiple authors the column showing the contribution is normally hidden
+    //      but since a manga can have multiple authors the column showing the contribution is hidden by default TODO make this message clearer
     [Parameter]
     public int? AuthorId { get; set; }
 

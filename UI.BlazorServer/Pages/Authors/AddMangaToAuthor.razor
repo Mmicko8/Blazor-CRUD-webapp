@@ -39,18 +39,17 @@ else
 
 @code {
 
-    [CascadingParameter]
+    [CascadingParameter, EditorRequired]
     public IManager? Manager { get; set; }
     
-    // this is to show how global exception would work, however we only use it for this component.
-    [CascadingParameter]
+    [CascadingParameter, EditorRequired]
     public ErrorHandler? ErrorHandler { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public int AuthorId { get; set; }
 
     // allows this component to refresh the parent page after adding the manga to author so that the user can notice the change
-    [Parameter]
+    [Parameter, EditorRequired]
     public AuthorDetails? Parent { get; set; }
 
     private MangaAuthor? _mangaAuthor;
@@ -59,8 +58,10 @@ else
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        _mangaAuthor = new MangaAuthor();
-        _mangaAuthor.Manga = new Manga();
+        _mangaAuthor = new MangaAuthor
+        {
+            Manga = new Manga()
+        };
         _editContext = new EditContext(_mangaAuthor);
     }
 

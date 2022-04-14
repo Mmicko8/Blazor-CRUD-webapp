@@ -44,22 +44,31 @@ else
 
         <button class="btn btn-primary btn-submit" type="submit">Update Magazine</button>
     </EditForm>
+
+    <h3>Manga</h3>
+    
+    <CascadingValue Value="_mgr">
+        <MangasTable Mangas="_mangas" RemoveMethod="ConfirmRemoveManga"/>
+    </CascadingValue>
 }
 
 
 @code {
+    [CascadingParameter, EditorRequired]
+    public ErrorHandler? ErrorHandler { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public int MagazineId { get; set; }
 
     private Magazine? Magazine { get; set; }
     private EditContext? _editContext;
+    private IEnumerable<Manga>? _mangas;
 
     protected override async Task OnParametersSetAsync()
     {
         _logger.LogInformation("requesting Magazine from db");
         Magazine = _mgr.GetMagazine(MagazineId);
-        // Magazine = _mgr.GetMagazine(30);  UNCOMMENT TO TEST CATCH STATEMENT
+        _mangas = Magazine.Mangas;
 
         try
         {
@@ -88,6 +97,23 @@ else
         else
         {
             _logger.LogWarning("Failed to update magazine");
+        }
+    }
+    
+    private async Task ConfirmRemoveManga(Manga manga) // TODO change method to something more specific
+    {
+        try
+        {
+            if (await _js.InvokeAsync<bool>("confirmRemove", $"Are you sure you want to remove {manga.Title}?",
+                "The manga will be deleted PERMANENTLY."))
+            {
+                _mgr.RemoveManga(manga.Id);
+                StateHasChanged();
+            }
+        }
+        catch(JSException e)
+        {
+            if (ErrorHandler != null) await ErrorHandler.ProcessError(e, "Something went wrong removing the manga");
         }
     }
 

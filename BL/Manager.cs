@@ -106,6 +106,11 @@ namespace MangaProject.BL
             return author;
         }
 
+        public void RemoveAuthor(int id)
+        {
+            _repo.DeleteAuthor(id);
+        }
+
         public Magazine GetMagazine(int id)
         {
             return _repo.ReadMagazine(id);
@@ -207,11 +212,6 @@ namespace MangaProject.BL
         {
             Validate(manga);
             Validate(manga.Protagonist);
-        }
-        
-        private void ValidateProtagonist(Protagonist protagonist)
-        {
-            Validate(protagonist);
         }
 
         private void ValidateAuthor(Author author)

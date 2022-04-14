@@ -1,6 +1,6 @@
 @* ReSharper disable once CheckNamespace *@
 @namespace UI.BlazorServer.Pages
-@page "/Magazine/Create"
+@page "/Magazine/Add"
 @using MangaProject.BL.Domain
 @using Microsoft.AspNetCore.Components
 @using MangaProject.BL
@@ -60,6 +60,5 @@
         }
         _navManager.NavigateTo($"/Magazine/Details/{Magazine.Id}");
         _logger.LogInformation("Added magazine successfully");
-
     }
 }

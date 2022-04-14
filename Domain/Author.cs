@@ -6,16 +6,7 @@ namespace MangaProject.BL.Domain
 {
     public class Author
     {
-        public Author()
-        {
-            
-        }
-        public Author(string name, DateTime birthday, int id=0)
-        {
-            Name = name;
-            Birthday = birthday;
-            Id = id;
-        }
+        public Author() {}
         
         public Author(string name, DateTime birthday, Gender gender, ICollection<MangaAuthor> mangas=null, int id=0)
         {

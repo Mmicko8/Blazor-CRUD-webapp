@@ -35,14 +35,13 @@ else
 
 @code {
 
-    [CascadingParameter]
+    [CascadingParameter, EditorRequired]
     public IManager? Manager { get; set; }
-
-    [EditorRequired]
-    [Parameter]
+    
+    [Parameter, EditorRequired]
     public int AnimeId { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public AnimeListItem? Parent { get; set; }
 
     private int _mangaId;

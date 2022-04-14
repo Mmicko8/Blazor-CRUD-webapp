@@ -29,7 +29,7 @@
 }
 
 @code {
-    [CascadingParameter]
+    [CascadingParameter, EditorRequired]
     public IManager? Manager { get; set; }
     
     [Parameter, EditorRequired]

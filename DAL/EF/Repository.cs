@@ -112,6 +112,12 @@ namespace MangaProject.DAL.EF
             _context.SaveChanges();
         }
 
+        public void DeleteAuthor(int id)
+        {
+            _context.Authors.Remove(_context.Authors.Find(id));
+            _context.SaveChanges();
+        }
+
         public Magazine ReadMagazine(int id)
         {
             return _context.Magazines.Find(id);

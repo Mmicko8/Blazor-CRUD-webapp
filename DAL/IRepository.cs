@@ -16,20 +16,29 @@ namespace MangaProject.DAL
         IEnumerable<Manga> ReadMangasWithoutAnime();
         void CreateManga(Manga manga);
         void DeleteManga(int id);
+        Protagonist ReadProtagonistOfManga(int mangaId);
+        
+        
         Author ReadAuthor(int id);
         IEnumerable<Author> ReadAllAuthors();
         IEnumerable<Author> ReadAllAuthorsWithManga();
         IEnumerable<Author> ReadAuthorsByGender(Gender gender);
         void CreateAuthor(Author author);
+        void DeleteAuthor(int id);
+        
+        
         Magazine ReadMagazine(int id);
         IEnumerable<Magazine> ReadAllMagazines();
         void CreateMagazine(Magazine magazine);
         Magazine UpdateMagazine(Magazine magazine);
         void DeleteMagazine(int magazineId);
+        
+        
         void CreateMangaAuthor(MangaAuthor mangaAuthor);
         void DeleteMangaAuthor(int mangaId, int authorId);
         ContributionType ReadContributionOfMangaAuthor(int mangaId, int authorId);
-        Protagonist ReadProtagonistOfManga(int mangaId);
+        
+        
         Anime ReadAnime(int id);
         IEnumerable<Anime> ReadAllAnime();
         void CreateAnime(Anime anime);

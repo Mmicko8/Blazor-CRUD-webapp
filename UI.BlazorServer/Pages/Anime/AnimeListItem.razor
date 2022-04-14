@@ -24,10 +24,10 @@
 
 @code {
 
-    [CascadingParameter]
+    [CascadingParameter, EditorRequired]
     public IManager? Manager { get; set; }
 
-    [Parameter]
+    [Parameter, EditorRequired]
     public int AnimeId { get; set; }
 
     private Manga? _manga;

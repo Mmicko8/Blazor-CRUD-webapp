@@ -9,6 +9,7 @@
     --color-primary-dark: #376D6A;
     --color-secondary: rgba(237, 116, 2, 0.8);
     --color-secondary-light: rgba(237, 116, 2, 0.62);
+    --color-secondary-lighter: rgba(237, 116, 2, 0.40);
     --color-secondary-dark: rgba(190, 94, 8, 0.93);;
     --color-danger: #be2a2a;
     --color-background: rgba(76, 141, 243, 0.06);
@@ -41,6 +42,10 @@ body {
 
 .nav-link.active {
     background-color: var(--color-secondary-light) !important;
+}
+
+.nav-link-child.active {
+    background-color: var(--color-secondary-lighter) !important;
 }
 
 
