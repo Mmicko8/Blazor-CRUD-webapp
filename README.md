@@ -1,2 +1,2 @@
 # Blazor-CRUD-webapp
-A simple CRUD web-app to manage manga, magazines and anime. 
+A simple CRUD web-app to manage manga, authors, magazines and anime. 
