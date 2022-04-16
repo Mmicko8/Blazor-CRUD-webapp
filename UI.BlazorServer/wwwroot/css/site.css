@@ -44,10 +44,6 @@ body {
     background-color: var(--color-secondary-light) !important;
 }
 
-.nav-link-child.active {
-    background-color: var(--color-secondary-lighter) !important;
-}
-
 
 /* --------- TABLES ----------- */
 th {

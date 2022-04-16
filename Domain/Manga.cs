@@ -34,7 +34,6 @@ namespace MangaProject.BL.Domain
         [Required(ErrorMessage = "title cannot be empty")]
         [StringLength(100, ErrorMessage = "100 characters is the maximum allowed for a manga title")]
         public string Title { get; set; }
-
         public DateTime StartDate { get; set; }
         public int Volumes { get; set; }
 
@@ -42,8 +41,6 @@ namespace MangaProject.BL.Domain
         public Protagonist Protagonist { get; set; }
 
         [Range(0, 10)] public double? Rating { get; set; }
-
-        // [Required(ErrorMessage = "Manga must have a magazine")]
         public Magazine Magazine { get; set; }
         public ICollection<MangaAuthor> Authors { get; set; }
         public Anime Anime { get; set; }
@@ -53,40 +50,56 @@ namespace MangaProject.BL.Domain
         {
             List<ValidationResult> errors = new List<ValidationResult>();
 
+            ValidateDate(errors);
+            ValidateVolumes(errors);
+            ValidateAuthors(errors);
+            ValidateProtagonist(errors);
+
+            return errors;
+        }
+
+        private void ValidateDate(ICollection<ValidationResult> errors)
+        {
             if (DateTime.Now < StartDate)
             {
-                string errorMessage = "StartDate of manga must be in the past";
+                var errorMessage = "StartDate of manga must be in the past";
                 errors.Add(new ValidationResult(errorMessage, new string[] {"StartDate"}));
             }
-
+        }
+        
+        private void ValidateVolumes(ICollection<ValidationResult> errors)
+        {
             if (Volumes < 0)
             {
-                string errorMessage = "Volumes cannot be negative";
+                var errorMessage = "Volumes cannot be negative";
                 errors.Add(new ValidationResult(errorMessage, new string[] {"Volumes"}));
             }
-
-            if (Authors != null)
+        }
+        
+        private void ValidateAuthors(ICollection<ValidationResult> errors)
+        {
+            if (Authors == null) return;
+            foreach (var author in Authors)
             {
-                foreach (var author in Authors)
+                if (StartDate < author.Author.Birthday)
                 {
-                    if (StartDate < author.Author.Birthday)
-                    {
-                        string errorMessage = "StartDate of manga can't be earlier than any of its authors birthdays";
-                        errors.Add(
-                            new ValidationResult(errorMessage, new string[] {nameof(StartDate), nameof(Authors)}));
-                    }
+                    string errorMessage = "StartDate of manga can't be earlier than any of its authors birthdays";
+                    errors.Add(
+                        new ValidationResult(errorMessage, new string[] {nameof(StartDate), nameof(Authors)}));
                 }
             }
+        }
 
-            List<ValidationResult> protagonistErrors = new List<ValidationResult>();
+        private void ValidateProtagonist(List<ValidationResult> errors)
+        {
+            var protagonistErrors = new List<ValidationResult>();
             bool valid = Validator.TryValidateObject(Protagonist, new ValidationContext(Protagonist)
                 , protagonistErrors, validateAllProperties: true);
             if (!valid)
             {
                 errors.AddRange(protagonistErrors);
             }
-
-            return errors;
         }
+        
     }
 }
